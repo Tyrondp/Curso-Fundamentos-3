@@ -76,5 +76,10 @@ public class Pruebalinkedlist {
         lista.print();
         Student found = lista.retrieve("Ada");
         System.out.println("Found: "+found.name+" score:"+found.score);
+        Student notFound = lista.retrieve("Gus");
+        if(notFound!=null){
+                    System.out.println("Found: "+notFound.name+" score:"+notFound.score);
+
+        }
     }
 }
