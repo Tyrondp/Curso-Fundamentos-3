@@ -1,31 +1,15 @@
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package grafos;
-
-import java.util.ArrayList;
-
-/**
- *
- * @author HP
- */
-class GrafoArrays {
-    private ArrayList<String> arcosDFS;
-    private ArrayList<String> arcosBFS;
+public class GrafoArrays {
     private String[] vertices;
     private int numVertices;
     private int[][] matrizAdyacencia;
-
+ 
     public GrafoArrays(String origen) {
         creaTablaVertices(origen);
         matrizAdyacencia = new int[numVertices][numVertices];
         populateMatrizAdyacencia(origen);
-        arcosDFS = new ArrayList<>();
-        arcosBFS = new ArrayList<>();
     }
-
+ 
     private void creaTablaVertices(String origen) {
         String[] lineas = origen.split("\\R");
         vertices = new String[lineas.length * 2];
@@ -46,42 +30,31 @@ class GrafoArrays {
             }
         }
         // Crear método para agregar aristas después de crear la tabla de vértices populateMatrizAdyacencia(origen);
-        // Dividir el archivo de texto en lineas y procesar cada línea para agregar aristas
-        // Cada linea se separa en dos vértices y un peso, luego se llama al método agregarArista para agregarlas a la matriz de adyacencia
-        // Crear un método para desplegar la Matriz de adyacencia
+             // Dividir el archivo de texto en lineas y procesar cada línea para agregar aristas 
+             // Cada linea se separa en dos vértices y un peso, luego se llama al método agregarArista para agregarlas a la matriz de adyacencia
+             // Crear un método para desplegar la Matriz de adyacencia
     }
     private void populateMatrizAdyacencia(String origen) {
-
         String[] lineas = origen.split("\\R");
         for (String linea : lineas) {
             String arista = linea.trim();
             if (arista.startsWith("{")) {
                 arista = arista.substring(1).trim();
             }
-
-            int peso = 1;
-            java.util.regex.Matcher matcher =
-                    java.util.regex.Pattern
-                            .compile("\\[\\s*\\w+\\s*=\\s*\"(\\d+)\"\\s*\\]")
-                            .matcher(arista);
-
-            if (matcher.find()) {
-                peso = Integer.parseInt(matcher.group(1));
-            }
-
             int etiqueta = arista.indexOf('[');
+            int peso = 1; // Peso por defecto
             if (etiqueta >= 0) {
+                String pesoStr = arista.substring(etiqueta + 1, arista.indexOf(']', etiqueta));
+                try {
+                    peso = Integer.parseInt(pesoStr.trim());
+                } catch (NumberFormatException e) {
+                    System.out.println("Peso inválido en la línea: " + linea);
+                }
                 arista = arista.substring(0, etiqueta);
             }
-
             String[] extremos = arista.split("--", 2);
-
             if (extremos.length == 2) {
-                agregarArista(
-                        extremos[0].trim(),
-                        extremos[1].trim(),
-                        peso
-                );
+                agregarArista(extremos[0].trim(), extremos[1].trim(), peso);
             }
         }
     }
@@ -94,13 +67,13 @@ class GrafoArrays {
         vertices[numVertices] = vertice;
         numVertices++;
     }
-
+ 
     public void display() {
         System.out.println("Vértices del grafo:");
         displayVertices();
         displayMatrizAdyacencia();
     }
-
+ 
     private void displayVertices() {
         for (int i = 0; i < numVertices; i++) {
             System.out.println(vertices[i]);
@@ -138,173 +111,175 @@ class GrafoArrays {
             matrizAdyacencia[indice2][indice1] = peso; // Para grafos no dirigidos
         }
     }
-    public void DFS(String verticeInicial, String verticeFinal) {
-
-        arcosDFS.clear();
-
-        boolean[] visitado = new boolean[numVertices];
-
-        int indiceInicial = obtenerIndiceVertice(verticeInicial);
-        int indiceFinal = obtenerIndiceVertice(verticeFinal);
-
-        if (indiceInicial == -1 || indiceFinal == -1) {
-            System.out.println("Uno o ambos vértices no existen en el grafo.");
-            return;
+    /**
+     * Calcula una ruta de costo mínimo entre dos vértices con Dijkstra.
+     * La matriz usa 0 para indicar que no existe una arista; por eso los pesos
+     * de las aristas deben ser positivos.
+     */
+    public String caminoMasCorto(String verticeInicial, String verticeFinal) {
+        int inicio = obtenerIndiceVertice(verticeInicial);
+        int destino = obtenerIndiceVertice(verticeFinal);
+        if (inicio == -1 || destino == -1) {
+            return "Uno o ambos vértices no existen en el grafo.";
         }
-
-        System.out.println("Recorrido DFS desde " + verticeInicial + " hasta " + verticeFinal + ":");
-
-        java.util.Stack<Integer> stack = new java.util.Stack<>();
-
-        stack.push(indiceInicial);
-        visitado[indiceInicial] = true;
-
-        System.out.print(vertices[indiceInicial] + " ");
-
-        while (!stack.isEmpty()) {
-
-            int indiceActual = stack.peek();
-
-            if (indiceActual == indiceFinal) {
-                System.out.println("\nSe ha alcanzado el vértice final.");
-                return;
-            }
-
-            int vecino = -1;
-
+ 
+        int[] distancia = new int[numVertices];
+        int[] anterior = new int[numVertices];
+        boolean[] definitivo = new boolean[numVertices];
+        java.util.Arrays.fill(distancia, Integer.MAX_VALUE);
+        java.util.Arrays.fill(anterior, -1);
+        distancia[inicio] = 0;
+ 
+        for (int paso = 0; paso < numVertices; paso++) {
+            int actual = -1;
             for (int i = 0; i < numVertices; i++) {
-                if (matrizAdyacencia[indiceActual][i] != 0 && !visitado[i]) {
-                    vecino = i;
-                    break;
+                if (!definitivo[i] && distancia[i] != Integer.MAX_VALUE
+&& (actual == -1 || distancia[i] < distancia[actual])) {
+                    actual = i;
                 }
             }
-
-            if (vecino != -1) {
-
-                visitado[vecino] = true;
-
-                String arco = vertices[indiceActual] + " -- " + vertices[vecino];
-                arcosDFS.add(arco);
-
-                stack.push(vecino);
-
-                System.out.print(vertices[vecino] + " ");
-
-            } else {
-                stack.pop();
+            if (actual == -1) {
+                break; // Los vértices restantes son inalcanzables.
+            }
+            if (actual == destino) {
+                break; // La distancia del destino ya es definitiva.
+            }
+            definitivo[actual] = true;
+ 
+            for (int vecino = 0; vecino < numVertices; vecino++) {
+                int peso = matrizAdyacencia[actual][vecino];
+                if (peso > 0 && !definitivo[vecino]
+&& distancia[actual] <= Integer.MAX_VALUE - peso) {
+                    int nuevaDistancia = distancia[actual] + peso;
+                    if (nuevaDistancia < distancia[vecino]) {
+                        distancia[vecino] = nuevaDistancia;
+                        anterior[vecino] = actual;
+                    }
+                }
             }
         }
-
-        System.out.println("\nNo se encontró un camino al vértice final.");
+ 
+        if (distancia[destino] == Integer.MAX_VALUE) {
+            return "No existe un camino entre " + verticeInicial + " y " + verticeFinal + ".";
+        }
+ 
+        java.util.LinkedList<String> camino = new java.util.LinkedList<>();
+        for (int actual = destino; actual != -1; actual = anterior[actual]) {
+            camino.addFirst(vertices[actual]);
+        }
+        return "Camino más corto: " + String.join(" -> ", camino)
+                + " (costo total: " + distancia[destino] + ")";
     }
-    public void BFS(String verticeInicial, String verticeFinal) {
-
-        arcosBFS.clear();
-
+ 
+    public void DFS(String verticeInicial, String VerticeFinal){
         boolean[] visitado = new boolean[numVertices];
-
         int indiceInicial = obtenerIndiceVertice(verticeInicial);
-        int indiceFinal = obtenerIndiceVertice(verticeFinal);
-
+        int indiceFinal = obtenerIndiceVertice(VerticeFinal);
         if (indiceInicial == -1 || indiceFinal == -1) {
             System.out.println("Uno o ambos vértices no existen en el grafo.");
             return;
         }
-
-        System.out.println("Recorrido BFS desde " + verticeInicial + " hasta " + verticeFinal + ":");
-
-        java.util.Queue<Integer> queue = new java.util.LinkedList<>();
-
-        queue.add(indiceInicial);
-        visitado[indiceInicial] = true;
-
-        while (!queue.isEmpty()) {
-
-            int indiceActual = queue.poll();
-
-            System.out.print(vertices[indiceActual] + " ");
-
-            if (indiceActual == indiceFinal) {
-                System.out.println("\nSe ha alcanzado el vértice final.");
-                return;
+        System.out.println("Recorrido DFS desde " + verticeInicial + " hasta " + VerticeFinal + ":");
+        java.util.Stack<Integer> stack = new java.util.Stack<>();
+        stack.push(indiceInicial);
+        while (!stack.isEmpty()) {
+            int indiceActual = stack.pop();
+            if (!visitado[indiceActual]) {
+                visitado[indiceActual] = true;
+                System.out.print(vertices[indiceActual] + " ");
+                if (indiceActual == indiceFinal) {
+                    System.out.println("\nSe ha alcanzado el vértice final.");
+                    return; 
+                }
             }
-
+            // Agregar vecinos no visitados al stack
             for (int i = 0; i < numVertices; i++) {
-
                 if (matrizAdyacencia[indiceActual][i] != 0 && !visitado[i]) {
-
-                    visitado[i] = true;
-
-                    String arco = vertices[indiceActual] + " -- " + vertices[i];
-
-                    arcosBFS.add(arco);
-
+                    stack.push(i);
+                }
+            }
+        }
+    }
+    public void BFS(String verticeInicial, String VerticeFinal){
+        // Implementación del recorrido Breadth-First Search (BFS)
+        boolean[] visitado = new boolean[numVertices];
+        int indiceInicial = obtenerIndiceVertice(verticeInicial);
+        int indiceFinal = obtenerIndiceVertice(VerticeFinal);
+        if (indiceInicial == -1 || indiceFinal == -1) {
+            System.out.println("Uno o ambos vértices no existen en el grafo.");
+            return;
+        }
+        System.out.println("Recorrido BFS desde " + verticeInicial + " hasta " + VerticeFinal + ":");
+        java.util.Queue<Integer> queue = new java.util.LinkedList<>();
+        queue.add(indiceInicial); // Agregar el vértice inicial a la cola
+        while (!queue.isEmpty()) {
+            int indiceActual = queue.poll();
+            if (!visitado[indiceActual]) {
+                visitado[indiceActual] = true;
+                System.out.print(vertices[indiceActual] + " ");
+                if (indiceActual == indiceFinal) {
+                    System.out.println("\nSe ha alcanzado el vértice final.");
+                    return; 
+                }
+            }
+            // Agregar vecinos no visitados a la cola
+            for (int i = 0; i < numVertices; i++) {
+                if (matrizAdyacencia[indiceActual][i] != 0 && !visitado[i]) {
                     queue.add(i);
                 }
             }
         }
-
-        System.out.println("\nNo se encontró un camino al vértice final.");
     }
-    public void despliegaArcos() {
-
-        System.out.println("\n========== ARCOS DFS ==========");
-
-        if (arcosDFS != null) {
-            for (String arco : arcosDFS) {
-                System.out.println(arco);
+    public String caminoMasCortoBFS(String verticeInicial, String verticeFinal) {
+       int inicio = obtenerIndiceVertice(verticeInicial);
+       int destino = obtenerIndiceVertice(verticeFinal);
+         if (inicio == -1 || destino == -1) {
+              return "Uno o ambos vértices no existen en el grafo.";
+         }
+         //Creamos arreglos auxiliares para almacenar la distancia y el vértice anterior en el camino más corto
+         int[] distancia = new int[numVertices];
+         int[] anterior = new int[numVertices];
+         boolean[] visitado = new boolean[numVertices];
+         java.util.Arrays.fill(distancia, Integer.MAX_VALUE);
+         java.util.Arrays.fill(anterior, -1);
+         distancia[inicio] = 0;
+         for (int paso = 0; paso < numVertices; paso++) {
+             int actual = -1;
+             // Seleccionamos el vértice no visitado con la distancia más corta
+             for (int i = 0; i < numVertices; i++) {
+                 if (!visitado[i] && distancia[i] != Integer.MAX_VALUE
+&& (actual == -1 || distancia[i] < distancia[actual])) {
+                     actual = i;
+                 }
+             }
+             if (actual == -1) {
+                 break; // Los vértices restantes son inalcanzables.
+             }
+             if (actual == destino) {
+                 break; // La distancia del destino ya es definitiva.
+             }
+             visitado[actual] = true;
+             for (int vecino = 0; vecino < numVertices; vecino++) {
+                 int peso = matrizAdyacencia[actual][vecino];
+                 if (peso > 0 && !visitado[vecino]
+&& distancia[actual] <= Integer.MAX_VALUE - peso) {
+                     int nuevaDistancia = distancia[actual] + peso;
+                     if (nuevaDistancia < distancia[vecino]) {
+                         distancia[vecino] = nuevaDistancia;
+                         anterior[vecino] = actual;
+                     }
+                 }
+             }
+         }
+            if (distancia[destino] == Integer.MAX_VALUE) {
+                return "No existe un camino entre " + verticeInicial + " y " + verticeFinal + ".";
             }
-        } else {
-            System.out.println("arcosDFS es nulo.");
-        }
-
-        System.out.println("\n========== ARCOS BFS ==========");
-
-        if (arcosBFS != null) {
-            for (String arco : arcosBFS) {
-                System.out.println(arco);
+            java.util.ArrayList<String> camino = new java.util.ArrayList<>();
+            int actual = destino; // Reconstruimos el camino más corto
+            while (actual != -1) {
+                camino.add(0, vertices[actual]);
+                actual = anterior[actual];
             }
-        } else {
-            System.out.println("arcosBFS es nulo.");
-        }
-
-        System.out.println("\n========== ESTADÍSTICAS ==========");
-
-        System.out.println("Total de vértices: " + numVertices);
-
-        int totalArcos = numVertices * (numVertices - 1) / 2;
-        int arcosOcupados = 0;
-
-        for (int i = 0; i < numVertices; i++) {
-            for (int j = i + 1; j < numVertices; j++) {
-                if (matrizAdyacencia[i][j] != 0) {
-                    arcosOcupados++;
-                }
-            }
-        }
-
-        System.out.println("Total de arcos posibles: " + totalArcos);
-        System.out.println("Total de arcos ocupados: " + arcosOcupados);
-
-        System.out.println("\n========== COMPARACIÓN ==========");
-
-        if (arcosDFS != null && arcosBFS != null) {
-
-            System.out.println("Cantidad de arcos DFS: " + arcosDFS.size());
-            System.out.println("Cantidad de arcos BFS: " + arcosBFS.size());
-
-            if (arcosDFS.size() < arcosBFS.size()) {
-                System.out.println("DFS tiene menos arcos.");
-
-            } else if (arcosBFS.size() < arcosDFS.size()) {
-                System.out.println("BFS tiene menos arcos.");
-
-            } else {
-                System.out.println("Ambos tienen la misma cantidad de arcos.");
-            }
-
-        } else {
-            System.out.println("No se pueden comparar los recorridos.");
-        }
+            return "El camino más corto de " + verticeInicial + " a " + verticeFinal + " es: " + String.join(" -> ", camino);
     }
 }

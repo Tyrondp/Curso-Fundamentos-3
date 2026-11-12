@@ -2,37 +2,65 @@ package grafos;
 
 import java.util.ArrayList;
 
-public class Nodos{
+public class Nodos {
+
     String nombre;
-    int peso; 
-    ArrayList<Nodos>adyacentes;
-    public Nodos(String Nombre){
-        this.nombre = Nombre;
-        this.peso= 0; 
-              this.adyacentes = new ArrayList<>();
-        
+
+    ArrayList<Nodos> adyacentes;
+
+    int peso;
+
+    public Nodos(String nombre) {
+
+        this.nombre = nombre;
+
+        this.peso = 0;
+
+        this.adyacentes = new ArrayList<>();
+
     }
-    public void agregarAdyacenciate (Nodos nodo, int peso ){
+
+    public void agregarAdyacente(Nodos nodo, int peso) {
+
         adyacentes.add(nodo);
-        nodo.peso = peso; 
+
+        nodo.peso = peso;
+
     }
-    public void display(){
-        System.out.println(nombre);
-        System.out.println("|adyacentes:");
-        for(Nodos nodo : adyacentes){
-            System.out.println(nodo.nombre + " " +  nodo.peso + " ");
-          }
-        System.out.println("");
+
+    public void display() {
+
+        System.out.print(nombre);
+
+        System.out.print("| Adyacentes: ");
+
+        for (Nodos nodo : adyacentes) {
+
+            System.out.print(nodo.nombre + ": " + nodo.peso + " ");
+
+        }
+
+        System.out.println();
+
     }
-    public String getNombre(){
+
+    public String getNombre() {
+
         return nombre;
+
     }
-       public ArrayList<Nodos> getAdyacentes(){
+
+    public ArrayList<Nodos> getAdyacentes() {
+
         return adyacentes;
+
     }
-    public int getPeso(){
+
+    public int getPeso() {
+
         return peso;
+
     }
 
 }
-    
+ 

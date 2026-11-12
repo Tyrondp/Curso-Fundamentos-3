@@ -1,6 +1,4 @@
-
-import grafos.GrafoListas;
-
+package grafos;
 public class grafos {
     public static void main(String[] args) {
         String texto = cargaArchivo("grafo_salon.txt");
@@ -29,5 +27,5 @@ public class grafos {
         }
         return contenido;
     }
-
+ 
 }
