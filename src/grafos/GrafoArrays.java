@@ -3,13 +3,13 @@ public class GrafoArrays {
     private String[] vertices;
     private int numVertices;
     private int[][] matrizAdyacencia;
- 
+
     public GrafoArrays(String origen) {
         creaTablaVertices(origen);
         matrizAdyacencia = new int[numVertices][numVertices];
         populateMatrizAdyacencia(origen);
     }
- 
+
     private void creaTablaVertices(String origen) {
         String[] lineas = origen.split("\\R");
         vertices = new String[lineas.length * 2];
@@ -67,13 +67,13 @@ public class GrafoArrays {
         vertices[numVertices] = vertice;
         numVertices++;
     }
- 
+
     public void display() {
         System.out.println("Vértices del grafo:");
         displayVertices();
         displayMatrizAdyacencia();
     }
- 
+
     private void displayVertices() {
         for (int i = 0; i < numVertices; i++) {
             System.out.println(vertices[i]);
@@ -122,19 +122,19 @@ public class GrafoArrays {
         if (inicio == -1 || destino == -1) {
             return "Uno o ambos vértices no existen en el grafo.";
         }
- 
+
         int[] distancia = new int[numVertices];
         int[] anterior = new int[numVertices];
         boolean[] definitivo = new boolean[numVertices];
         java.util.Arrays.fill(distancia, Integer.MAX_VALUE);
         java.util.Arrays.fill(anterior, -1);
         distancia[inicio] = 0;
- 
+
         for (int paso = 0; paso < numVertices; paso++) {
             int actual = -1;
             for (int i = 0; i < numVertices; i++) {
                 if (!definitivo[i] && distancia[i] != Integer.MAX_VALUE
-&& (actual == -1 || distancia[i] < distancia[actual])) {
+                        && (actual == -1 || distancia[i] < distancia[actual])) {
                     actual = i;
                 }
             }
@@ -145,11 +145,11 @@ public class GrafoArrays {
                 break; // La distancia del destino ya es definitiva.
             }
             definitivo[actual] = true;
- 
+
             for (int vecino = 0; vecino < numVertices; vecino++) {
                 int peso = matrizAdyacencia[actual][vecino];
                 if (peso > 0 && !definitivo[vecino]
-&& distancia[actual] <= Integer.MAX_VALUE - peso) {
+                        && distancia[actual] <= Integer.MAX_VALUE - peso) {
                     int nuevaDistancia = distancia[actual] + peso;
                     if (nuevaDistancia < distancia[vecino]) {
                         distancia[vecino] = nuevaDistancia;
@@ -158,11 +158,11 @@ public class GrafoArrays {
                 }
             }
         }
- 
+
         if (distancia[destino] == Integer.MAX_VALUE) {
             return "No existe un camino entre " + verticeInicial + " y " + verticeFinal + ".";
         }
- 
+
         java.util.LinkedList<String> camino = new java.util.LinkedList<>();
         for (int actual = destino; actual != -1; actual = anterior[actual]) {
             camino.addFirst(vertices[actual]);
@@ -170,7 +170,7 @@ public class GrafoArrays {
         return "Camino más corto: " + String.join(" -> ", camino)
                 + " (costo total: " + distancia[destino] + ")";
     }
- 
+
     public void DFS(String verticeInicial, String VerticeFinal){
         boolean[] visitado = new boolean[numVertices];
         int indiceInicial = obtenerIndiceVertice(verticeInicial);
@@ -248,7 +248,7 @@ public class GrafoArrays {
              // Seleccionamos el vértice no visitado con la distancia más corta
              for (int i = 0; i < numVertices; i++) {
                  if (!visitado[i] && distancia[i] != Integer.MAX_VALUE
-&& (actual == -1 || distancia[i] < distancia[actual])) {
+                         && (actual == -1 || distancia[i] < distancia[actual])) {
                      actual = i;
                  }
              }
@@ -262,7 +262,7 @@ public class GrafoArrays {
              for (int vecino = 0; vecino < numVertices; vecino++) {
                  int peso = matrizAdyacencia[actual][vecino];
                  if (peso > 0 && !visitado[vecino]
-&& distancia[actual] <= Integer.MAX_VALUE - peso) {
+                         && distancia[actual] <= Integer.MAX_VALUE - peso) {
                      int nuevaDistancia = distancia[actual] + peso;
                      if (nuevaDistancia < distancia[vecino]) {
                          distancia[vecino] = nuevaDistancia;
